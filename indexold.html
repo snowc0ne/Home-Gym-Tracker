@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Swole Plan: 2‑Week Hypertrophy + Running</title>
+  <style>
+    :root {
+      --bg: #0b0c10;
+      --card: #151820;
+      --ink: #e8ecf1;
+      --muted: #a9b2bf;
+      --accent: #ff3b3b;
+      --accent-2: #3b82f6;
+      --ok: #22c55e;
+      --radius: 16px;
+    }
+    html, body {height: 100%;}
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background: linear-gradient(180deg, #0b0c10 0%, #0f1117 100%);
+      color: var(--ink);
+    }
+    .wrap {max-width: 980px; margin: 24px auto; padding: 0 16px 56px;}
+    header {display:flex; gap:16px; align-items:center; justify-content:space-between; margin-bottom: 18px;}
+    h1 {font-size: clamp(22px, 3.2vw, 34px); margin: 0; letter-spacing: .3px;}
+    .sub {color: var(--muted); font-size: 14px; margin-top: 6px}
+    .card {background: var(--card); padding: 16px; border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,.35);}  
+    .tabs {display:flex; gap: 8px; align-items:center; flex-wrap: wrap}
+    .tabs button {
+      border: 1px solid rgba(255,255,255,.12);
+      background: transparent; color: var(--ink);
+      padding: 10px 14px; border-radius: 999px; cursor: pointer; font-weight: 600;
+      transition: .2s ease; font-size: 14px;
+    }
+    .tabs button.active {background: var(--accent); border-color: var(--accent);}
+    .tabs button.secondary {background: #222733; border-color: #222733;}
+    .grid {display: grid; grid-template-columns: 1fr; gap: 16px;}
+    @media (min-width: 760px){ .grid {grid-template-columns: 1fr 1fr;}}
+
+    .day {border: 1px solid rgba(255,255,255,.08); border-radius: var(--radius); overflow: hidden;}
+    .day h3 {margin: 0; padding: 14px 14px 8px; font-size: 18px;}
+    .meta {padding: 0 14px 8px; color: var(--muted); font-size: 13px}
+    .list {padding: 10px 10px 12px}
+    .ex {
+      background: rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06); border-radius: 12px; padding: 10px; margin: 10px;
+    }
+    .ex h4 {margin: 0 0 8px 0; font-size: 15px}
+    .rep {color: var(--muted); font-size: 13px}
+    .sets {display:flex; flex-wrap:wrap; gap:8px; margin-top:8px}
+    .set {display:flex; align-items:center; gap:6px;}
+    .set input {width:18px; height:18px; accent-color: var(--accent);} 
+    .progress {display:flex; align-items:center; justify-content:space-between; gap:8px; padding: 10px 12px; border-top:1px dashed rgba(255,255,255,.09); font-size: 13px; color: var(--muted)}
+    .bar {flex:1; height: 8px; background: #1f2430; border-radius: 99px; overflow:hidden}
+    .bar > i {display:block; height:100%; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 100%)}
+    .notes {display:block; width:100%; resize:vertical; min-height:70px; padding:10px; border-radius: 12px; border:1px solid rgba(255,255,255,.08); background:#0f1320; color: var(--ink)}
+    .how {line-height:1.5}
+    .how strong {color: #fff}
+    .badge {padding: 2px 8px; background:#10202f; color:#8cc1ff; border:1px solid #284663; border-radius: 999px; font-size: 12px; font-weight:700}
+    .run {border-left: 4px solid var(--accent-2)}
+    .lift {border-left: 4px solid var(--accent)}
+    footer {margin-top: 20px; color: var(--muted); font-size: 12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div>
+        <h1>2‑Week Hypertrophy Plan (with Run Support)</h1>
+        <div class="sub">Built for your Marcy home gym + bodyweight. Check boxes save automatically. Rest 60–90s, aim RPE 7–9. Add a little weight or 1 rep weekly.</div>
+      </div>
+      <div class="tabs">
+        <button data-week="week1" class="active">Week 1</button>
+        <button data-week="week2">Week 2 (variation)</button>
+        <button id="resetWeek" class="secondary" title="Clear checkmarks for the visible week">Reset visible week</button>
+      </div>
+    </header>
+
+    <section class="card how" style="margin-bottom:16px">
+      <p><strong>How to use:</strong> Pick a week, check off each set as you complete it. Notes save automatically. “Run/Easy” items log as a single checkbox. Variations in Week 2 change angles/emphasis so you hit anything Week 1 missed.</p>
+      <p><span class="badge">TIP</span> Keep 1–2 reps in reserve most sets. For <em>AMRAP</em> sets, stop 1 rep before form breaks.</p>
+    </section>
+
+    <div id="days" class="grid"></div>
+
+    <footer>
+      © You got this. Eat 1.6–2.2g protein/kg, sleep 7.5–9h.
+    </footer>
+  </div>
+
+  <script>
+  const PLAN = {
+    week1: [
+      {title: 'Day 1 — Push (Chest/Shoulders/Triceps)', type:'lift', meta:'Machine + bodyweight', exercises: [
+        ex('Seated Bench Press', 4, '8–10'),
+        ex('Pectoral Fly', 3, '10–12'),
+        ex('Tricep Push‑Down', 3, '10–12'),
+        ex('Push‑Ups (slow)', 3, 'AMRAP'),
+        ex('Pike Push‑Ups', 3, '8–10'),
+      ]},
+      {title: 'Day 2 — Legs + Glutes', type:'lift', meta:'Hypertrophy, knee + hip focus', exercises: [
+        ex('Leg Extension', 4, '10–12'),
+        ex('Leg Curl', 4, '10–12'),
+        ex('Inner Thigh Leg Cross', 3, '12'),
+        ex('Outer Leg Kick', 3, '12'),
+        ex('Bulgarian Split Squat', 3, '10/leg'),
+        ex('Hip Thrust / Glute Bridge', 4, '15'),
+        ex('Calf Raises', 3, '20')
+      ]},
+      {title: 'Day 3 — Easy Run + Mobility', type:'run', meta:'5–8 km at conversational pace + 10 min mobility', exercises: [ ex('Easy Run', 1, 'Complete') ]},
+      {title: 'Day 4 — Pull (Back/Biceps)', type:'lift', meta:'Vertical pull emphasis', exercises: [
+        ex('Wide Lat Pull‑Down', 4, '8–10'),
+        ex('Upright Row', 3, '10–12'),
+        ex('Seated Bicep Curl', 3, '10–12'),
+        ex('Standing Bicep Curl', 3, '10–12'),
+        ex('Inverted Rows', 3, 'AMRAP'),
+        ex('Superman Holds', 3, '20s')
+      ]},
+      {title: 'Day 5 — Legs + Core', type:'lift', meta:'Glutes + trunk', exercises: [
+        ex('High Pulley Ab Crunch', 3, '15–20'),
+        ex('Leg Kick Back (Glutes)', 4, '12/side'),
+        ex('Walking Lunges', 3, '12/leg'),
+        ex('Side Plank Hip Dips', 3, '12/side'),
+        ex('Hanging Knee Raises (or floor crunches)', 3, '10–15')
+      ]},
+      {title: 'Day 6 — Push/Pull Mix (Hypertrophy)', type:'lift', meta:'Compound volume + isolation', exercises: [
+        ex('Seated Bench Press', 4, '8–10'),
+        ex('Lat Pull‑Down', 4, '8–10'),
+        ex('Tricep Push‑Down', 3, '12'),
+        ex('Seated Bicep Curl', 3, '12'),
+        ex('Front Deltoid Raise', 3, '12'),
+        ex('Push‑Ups Burnout', 1, 'AMRAP')
+      ]},
+      {title: 'Day 7 — Long Run / Recovery', type:'run', meta:'Build toward 15–20 km easy. Optional yoga/mobility.', exercises: [ ex('Long Run', 1, 'Complete') ]}
+    ],
+
+    week2: [
+      {title: 'Day 1 — Push VARIATION', type:'lift', meta:'Different angles & triceps load', exercises: [
+        ex('Close‑Grip Chest Press (machine)', 4, '8–10'),
+        ex('Single‑Arm Chest Press (alternating)', 3, '10/side'),
+        ex('Front Deltoid Raise (cable)', 3, '12–15'),
+        ex('Bench Dips (between boxes/chairs)', 3, 'AMRAP'),
+        ex('Diamond Push‑Ups', 3, 'AMRAP')
+      ]},
+      {title: 'Day 2 — Legs + Glutes VARIATION', type:'lift', meta:'Posterior chain + unilateral', exercises: [
+        ex('Leg Curl', 4, '8–10'),
+        ex('Leg Extension', 3, '12–15'),
+        ex('Step‑Ups (box/bench height)', 3, '12/leg'),
+        ex('Single‑Leg Hip Thrust', 3, '12/leg'),
+        ex('Curtsy/ Cossack Lunge', 3, '10/leg'),
+        ex('Tibialis Raises (against wall)', 3, '15–20')
+      ]},
+      {title: 'Day 3 — Easy Run + Mobility', type:'run', meta:'5–8 km easy + mobility (ankles/hips)', exercises: [ ex('Easy Run', 1, 'Complete') ]},
+      {title: 'Day 4 — Pull VARIATION', type:'lift', meta:'Mid‑back & rear‑delt focus', exercises: [
+        ex('Underhand/Close‑Grip Lat Pull‑Down', 4, '8–10'),
+        ex('Seated Cable Row (low pulley)', 4, '10–12'),
+        ex('Straight‑Arm Pull‑Down', 3, '12–15'),
+        ex('Face Pull (high pulley)', 3, '12–15'),
+        ex('Reverse‑Grip Cable Curl', 3, '10–12')
+      ]},
+      {title: 'Day 5 — Legs + Core VARIATION', type:'lift', meta:'Glutes/adductors + anti‑rotation', exercises: [
+        ex('Cable Woodchop / Oblique Side Bend', 3, '12/side'),
+        ex('Rear‑Foot Elevated Split Squat', 3, '10/leg'),
+        ex('Frog Pumps', 4, '20'),
+        ex('Pallof Press (cable)', 3, '12/side'),
+        ex('Standing Calf Raise', 4, '15–20')
+      ]},
+      {title: 'Day 6 — Mixed VARIATION (Tempo & Unilateral)', type:'lift', meta:'Tempo + rear‑delt + arms', exercises: [
+        ex('Tempo Bench (3‑1‑1)', 3, '8'),
+        ex('One‑Arm Lat Pull‑Down (if setup allows)', 3, '10/side'),
+        ex('Overhead Cable Triceps Extension', 3, '12–15'),
+        ex('Cable Reverse Fly (rear delts)', 3, '12–15'),
+        ex('Preacher Curl (on pad)', 3, '10–12')
+      ]},
+      {title: 'Day 7 — Long Run / Recovery', type:'run', meta:'Easy long run + mobility, strides optional', exercises: [ ex('Long Run', 1, 'Complete') ]}
+    ]
+  };
+
+  function ex(name, sets, repRange){ return { name, sets, repRange }; }
+
+  const daysEl = document.getElementById('days');
+  const tabBtns = [...document.querySelectorAll('.tabs button[data-week]')];
+  const resetBtn = document.getElementById('resetWeek');
+  let activeWeek = 'week1';
+
+  function getState(){
+    try { return JSON.parse(localStorage.getItem('swolePlan_v1')) || {}; }
+    catch(e){ return {}; }
+  }
+  function saveState(s){ localStorage.setItem('swolePlan_v1', JSON.stringify(s)); }
+
+  function keyFor(week, d, e, s){ return `${week}|d${d}|e${e}|s${s}`; }
+
+  function render(){
+    daysEl.innerHTML = '';
+    const state = getState();
+    const plan = PLAN[activeWeek];
+
+    plan.forEach((day, di)=>{
+      const dayEl = document.createElement('section');
+      dayEl.className = `day card ${day.type === 'run' ? 'run':'lift'}`;
+      dayEl.innerHTML = `
+        <h3>${day.title}</h3>
+        <div class="meta">${day.meta || ''}</div>
+        <div class="list"></div>
+        <div class="progress"><span>Progress</span><div class="bar"><i style="width:0%"></i></div><span class="pct"></span></div>
+        <div style="padding: 0 12px 12px">
+          <label class="meta" for="n-${activeWeek}-${di}">Notes</label>
+          <textarea id="n-${activeWeek}-${di}" class="notes" placeholder="How did it feel? Load used, reps, RPE, tweaks..."></textarea>
+        </div>
+      `;
+      const listEl = dayEl.querySelector('.list');
+
+      // Build exercises
+      let totalSets = 0, doneSets = 0;
+      day.exercises.forEach((ex, ei)=>{
+        const exEl = document.createElement('div');
+        exEl.className = 'ex';
+        exEl.innerHTML = `<h4>${ex.name}</h4><div class="rep">${ex.repRange ? `Sets x Reps: <strong>${ex.sets} × ${ex.repRange}</strong>` : ''}</div>`;
+
+        const setsWrap = document.createElement('div');
+        setsWrap.className = 'sets';
+
+        for(let si=1; si<=ex.sets; si++){
+          const setId = keyFor(activeWeek, di, ei, si);
+          const isChecked = !!state[setId];
+          if(isChecked) doneSets++;
+          totalSets++;
+          const item = document.createElement('label');
+          item.className = 'set';
+          item.innerHTML = `<input type="checkbox" ${isChecked?'checked':''} data-k="${setId}"><span>Set ${si}</span>`;
+          setsWrap.appendChild(item);
+        }
+        exEl.appendChild(setsWrap);
+        listEl.appendChild(exEl);
+      });
+
+      // progress
+      const pct = totalSets ? Math.round((doneSets/totalSets)*100) : 0;
+      dayEl.querySelector('.bar > i').style.width = pct + '%';
+      dayEl.querySelector('.pct').textContent = pct + '%';
+
+      // notes
+      const nKey = `notes|${activeWeek}|d${di}`;
+      const nEl = dayEl.querySelector('textarea');
+      nEl.value = state[nKey] || '';
+      nEl.addEventListener('input', e=>{ const s = getState(); s[nKey] = e.target.value; saveState(s); });
+
+      daysEl.appendChild(dayEl);
+    });
+
+    // Attach listeners for all checkboxes after render
+    daysEl.querySelectorAll('input[type="checkbox"]').forEach(chk=>{
+      chk.addEventListener('change', e=>{
+        const s = getState(); s[e.target.dataset.k] = e.target.checked; saveState(s); // save
+        // update progress quickly
+        render();
+      });
+    });
+  }
+
+  // Tabs
+  tabBtns.forEach(btn=>btn.addEventListener('click', ()=>{
+    tabBtns.forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    activeWeek = btn.dataset.week; render();
+  }));
+
+  // Reset current week
+  resetBtn.addEventListener('click', ()=>{
+    if(!confirm('Clear all checkmarks for the visible week?')) return;
+    const s = getState();
+    Object.keys(s).forEach(k=>{ if(k.startsWith(activeWeek+'|') || k.startsWith('notes|'+activeWeek)) delete s[k]; });
+    saveState(s); render();
+  });
+
+  // first paint
+  render();
+  </script>
+</body>
+</html>
